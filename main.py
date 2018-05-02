@@ -30,6 +30,7 @@ async def psn_task():
     await client.wait_until_ready()
 
     channel = discord.Object(id=setting["psn_ch"])
+    await client.purge_from(channel, check=is_bot_message)
 
     users = setting["psn_users"]
 
@@ -38,8 +39,6 @@ async def psn_task():
         prev_msg[k] = None
 
     while not client.is_closed:
-        await client.purge_from(channel, check=is_bot_message)
-
         for user in users:
             user_state = psn.get_user_state(user)
             msg = create_psn_message(user, user_state)
