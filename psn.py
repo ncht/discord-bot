@@ -10,16 +10,31 @@ authenticated_friends = setting["auth_friends"]
 
 owner = setting["psn_owner"]
 
-new_token_pair = Auth.GrabNewTokens(setting["grab_token"])
+token_pair = None
 
 tokens = {
-    "oauth": new_token_pair[0],
-    "refresh": new_token_pair[1],
     "npsso": setting["npsso"]
 }
 
-user = User(tokens)
-friend = Friend(tokens)
+user = None
+friend = None
+
+def initialize():
+    global token_pair
+    global tokens
+    global user
+    global friend
+
+    token_pair = Auth.GrabNewTokens(setting["grab_token"])
+    if token_pair == None:
+        return False
+
+    tokens["oauth"] = token_pair[0]
+    tokens["refresh"] = token_pair[1]
+    user = User(tokens)
+    friend = Friend(tokens)
+
+    return True
 
 def get_user_playing():
     user_data = user.me()

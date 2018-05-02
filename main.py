@@ -23,6 +23,9 @@ def create_psn_message(psn_id, user_state):
 
     return msg
 
+def is_bot_message(m):
+    return m.author == client.user
+
 async def psn_task():
     await client.wait_until_ready()
 
@@ -35,6 +38,8 @@ async def psn_task():
         prev_msg[k] = None
 
     while not client.is_closed:
+        await client.purge_from(channel, check=is_bot_message)
+
         for user in users:
             user_state = psn.get_user_state(user)
             msg = create_psn_message(user, user_state)
@@ -48,6 +53,11 @@ async def psn_task():
 @client.event
 async def on_ready():
     print("Logged in")
+
+    ret = psn.initialize()
+    if ret == False:
+        channel = discord.Object(id=setting["psn_ch"])
+        await client.send_message(channel, "PSN のログインに失敗しました")
 
 @client.event
 async def on_message(message):
